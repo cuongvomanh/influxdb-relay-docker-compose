@@ -1,0 +1,3 @@
+172.17.0.2 influx0.service.consul influx0 
+172.17.0.3 influx1.service.consul influx1
+172.17.0.4 influx2.service.consul influx2
