@@ -1,0 +1,59 @@
+---
+version: '3'
+services:
+  influxdb1:
+    image: influxdb-relay:centos7.0.1
+    container_name: influxdb1
+    privileged: true
+    ports:
+      - 8086:8086
+      - 9096:9096
+    #entrypoint: /docker-entrypoint.sh
+    #environment:
+      #GOPATH: /root/gocode
+      #PATH: $PATH:/root/go/bin
+    volumes: 
+      - ./influx-nginx/conf/relay_1.toml:/root/relay.toml
+    entrypoint: 
+      - /bin/sh 
+      - -c 
+      - |
+        export GOPATH=/root/gocode
+        export PATH=$PATH:/root/go/bin
+        go get -u github.com/influxdata/influxdb-relay
+        service influxdb restart
+        influxdb-relay -config  relay.toml > /dev/null 2>&1 &
+        /usr/sbin/init
+  influxdb2:
+    image: influxdb-relay:centos7.0.1
+    container_name: influxdb2
+    privileged: true
+    ports:
+      - 8087:8086
+      - 9097:9096
+    #entrypoint: /docker-entrypoint.sh
+    #environment:
+      #GOPATH: /root/gocode
+      #PATH: $PATH:/root/go/bin
+    volumes: 
+      - ./influx-nginx/conf/relay_2.toml:/root/relay.toml
+    entrypoint: 
+      - /bin/sh 
+      - -c 
+      - |
+        export GOPATH=/root/gocode
+        export PATH=$PATH:/root/go/bin
+        go get -u github.com/influxdata/influxdb-relay
+        service influxdb restart
+        influxdb-relay -config  relay.toml > /dev/null 2>&1 &
+        /usr/sbin/init
+  influxdb-nginx:
+    image: influxdb-relay-nginx:centos7.0.1
+    container_name: influxdb-nginx
+    privileged: true
+    ports:
+      - 7077:7076
+    volumes: 
+      - ./influx-nginx/conf/influx-loadbalancer.conf:/etc/nginx/conf.d/influx-loadbalancer.conf
+
+
